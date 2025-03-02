@@ -1,4 +1,4 @@
-# HelloMC 联机平台使用指南
+# Xbox 联机平台使用指南
 **官网地址**：<https://mc.miaaoo.com>  
 **游戏版本**：Minecraft Bedrock Edition (基岩版)
 
