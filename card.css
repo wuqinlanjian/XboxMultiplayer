@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'mc1';
+    src: url('aaa.otf') format('opentype'); /* 将 truetype 改为 opentype，如果字体格式是 opentype 的话 */
+    font-weight: normal;
+    font-style: normal;
+}
+
+.card {
+    border-top: 3px solid #646464;
+    border-bottom: 3px solid #1d1d1d;
+    color: rgb(205, 205, 205);
+    padding: 10px;
+    background-color: #4e4e4e;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0px;
+    border-left: 3px solid #1d1d1d;
+    border-right: 3px solid #1d1d1d;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;  /* 控制输入框间距 */
+    padding: 10px;
+}
+
+.card-header, .card-body {
+    flex-grow: 1;
+}
+
+.card button {
+    margin-left: auto;
+}
+
+.card-header {
+    font-family: mc1;
+    font-size: 1.1em;
+    color: rgb(255, 255, 255);
+    display: flex; /* 添加Flexbox布局 */
+    justify-content: space-between; /* 让元素两端对齐 */
+    align-items: center; /* 垂直居中文本和图片 */
+    width: 100%; /* 确保宽度占满整个卡片头部 */
+    box-sizing: border-box; /* 包括内边距和边框在内的宽度计算方式 */
+}
+
+.card-body {
+    font-family: mc1;
+    font-size: 0.9em;
+}
+
+.card-button {
+    float: right;
+}
+
+body {
+    background-image: url(panorama_1.png);
+}
+
+section {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out, background-color 0.5s ease-in-out;
+}
+
+section.fade-out {
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+section.fade-in {
+    opacity: 1;
+    background-color: transparent;
+}
+
+.status-text {
+    font-size: 1.5em; /* 设置字体大小为1.5倍 */
+    margin-left: auto; /* 将文本推到卡片的右侧 */
+    margin-right: 10px; /* 设置右侧边距 */
+    color: white;
+}
