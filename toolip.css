@@ -1,0 +1,54 @@
+.modal {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    z-index: 1000; /* 确保模态框在其他内容之上 */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    overflow: auto;
+    border: 2px solid rgba(26, 26, 26);
+    background-color: white; /* 这里添加背景色是为了更好地观察效果 */
+    /* 移除了固定的宽度和高度 */
+    /* 添加最大宽度和高度的限制，可选 */
+    max-width: 80%;
+    max-height: 80%;
+}
+
+
+.modal-header {
+    background-color: rgb(98, 98, 98); /* 顶栏为红色 */
+    height: 50px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgba(255, 255, 255, 0.2); /* 外面包裹着一圈2px的蓝色边框 */
+}
+
+.modal-header .close {
+    color: white;
+    float: right;
+    font-size: 28px;
+    height: 100px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-header .close:hover {
+    color: rgb(57, 57, 57);
+}
+
+.modal-header h1 {
+    color: white;
+    margin: 0;
+}
+
+.modal-body {
+    background-color: rgb(75, 75, 75); /* 提示框主体是绿色 */
+    padding: 20px;
+}
+
+.overlay-footer {
+    background-color: rgb(94, 94, 94); /* 操作栏为绿色 */
+    padding: 5px 5px;
+    box-shadow: 0 -2px 0 rgb(108, 108, 108); /* 上方有2px的紫色阴影 */
+}
