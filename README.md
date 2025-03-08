@@ -7,7 +7,7 @@
 1. 打开 Minecraft 基岩版
 2. 点击【好友】→【添加好友】
 3. 输入好友代码 `HelloMC25`
-4. 访问平台网站 [bedrockrooms.minecraft.pe](http://bedrockrooms.minecraft.pe)
+4. 访问平台网站 [bedrockrooms.minecraft.pe](http://bedrockrooms.minecraft.pe)/[https://multiplayer.dev.tc/](https://multiplayer.dev.tc)
 5. 选择房间 → 点击【广播房间】
 6. 返回游戏查看新出现的房间列表
 
