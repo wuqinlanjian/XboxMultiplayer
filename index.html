@@ -8,7 +8,14 @@
     <link rel="stylesheet" href="button.css">
     <link rel="stylesheet" href="toast.css">
     <link rel="stylesheet" href="card.css">    
+    <link rel="stylesheet" href="toolip.css">
     <style>
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('mc1.otf') format('opentype'); /* 将 truetype 改为 opentype，如果字体格式是 opentype 的话 */
+            font-weight: normal;
+            font-style: normal;
+        }
         .button-container {
             display: flex;
             justify-content: flex-start;
@@ -42,6 +49,39 @@
     <audio id="toastAudio" src="toast.wav"></audio>
 </head>
 <body>
+    <div id="jumpModal" class="modal">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <p style="text-align: center;font-family: Minecraft; color: white;display: flex;justify-content: center;align-items: center;height: 30%;font-size: 20px;">前往官方网站！</p>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <img src="miaaoo.png" alt="miaaoo" style="width: 300px; height: 200px; border: 2px solid rgb(27, 27, 27);">
+            <p></p>
+            <p style="font-family: Minecraft;color: white">我们的API来自<a href="httsp://mc.miaaoo.com" style="color:rgb(0, 174, 0)">mc.miaaoo.com</mc></a>，请前往官方网站获取更多信息。</p>
+        </div>
+        <div class="overlay-footer">
+            <button class="create_button" onclick="jump()" style="width:490px; display: flex; justify-content: center;align-items: center;">跳转</button>
+        </div>
+    </div>
+
+    <div id="updateModal" class="modal">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <p style="text-align: center;font-family: Minecraft; color: white;display: flex;justify-content: center;align-items: center;height: 30%;font-size: 20px;">1.0.1版本更新内容</p>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <p style="font-family: Minecraft;color: white">1.使用了新版API，速度更快，稳定性更高。</p>
+            <p style="font-family: Minecraft;color: white">2.修复了打开网页时设置中gouhope与HelloMC25的显示问题。</p>
+            <p style="font-family: Minecraft;color: white">3.优化了页面加载速度。</p>
+            <p style="font-family: Minecraft;color: white">4.修复了部分页面显示问题。</p>
+            <p style="font-family: Minecraft;color: white">5.添加了“前往官方网站！”弹窗</p>
+            <p style="font-family: Minecraft;color: white">6.加入了更新日志</p>
+        </div>
+        <div class="overlay-footer">
+            <button class="simple_button" onclick="hideUpdateModal()" style="width:490px; display: flex; justify-content: center;align-items: center;">我已知晓</button>
+        </div>
+    </div>
+
     <div class="header">
         <button id="reloadButton" class="realm_button" onclick="reloadRooms()" style="margin-left: 10px;width: 20% ;height: 70%;">刷新</button>
         <div class="header-title">
@@ -122,6 +162,12 @@
                 输入你的XUID之后广播房间，会在游戏内显示一个邀请。
                 <p></p>
                 <button class="create_button" onclick="validateAndUpdateXuid()" style="margin-top: 5px;">保存XUID</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">测试</div>
+            <div class="button-container">
+                <button class="create_button">测试</button>
             </div>
         </div>
     </section>    
@@ -281,24 +327,48 @@
             const button = event.target;
             // 禁用按钮
             button.disabled = true;
-
-            xhr.open('POST', 
-                `https://mc.miaaoo.com:10101/test-join?roomfrom=${roomFrom}&addid=${roomFrom}&roomid=${roomId}&sessionname=${sessionName}&userxuid=${xuid}`, 
-                true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200 || xhr.status === 201) {
-                        showNotification('加入房间成功');
-                    } else {
-                        showNotification(`加入房间失败，状态码: ${xhr.status}`);
-                    }
-                    // 请求完成，恢复按钮状态
-                    button.disabled = false;
+            showNotification('正在加入房间...');
+            if(!xuid || xuid == ""){
+                const xhr = new XMLHttpRequest(); // 创建一个 XMLHttpRequest 对象
+                xhr.open('POST', 
+                `https://api.miaaoo.com/join?roomfrom=${roomFrom}&addid=${roomFrom}&roomid=${roomId}&sessionname=${sessionName}`, 
+                true); // 确保这里调用 open 方法
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200 || xhr.status === 201) {
+                            showNotification('加入房间成功');
+                        } else {
+                            showNotification(`加入房间失败，状态码: ${xhr.status}`);
+                        }
+                        // 请求完成，恢复按钮状态
+                        button.disabled = false;
+                    }  
                 }
-            };
-            xhr.send(JSON.stringify({}));
+                xhr.send(JSON.stringify({})); // 在 open 之后调用 send 方法
+            }
+            else{
+                showNotification('正在加入房间...111');
+                const xhr = new XMLHttpRequest(); // 创建一个 XMLHttpRequest 对象
+                xhr.open('POST', 
+                `https://api.miaaoo.com/join?roomfrom=${roomFrom}&addid=${roomFrom}&roomid=${roomId}&sessionname=${sessionName}&userxuid=${xuid}`, 
+                true); // 确保这里调用 open 方法
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200 || xhr.status === 201) {
+                            showNotification('加入房间成功');
+                        } else {
+                            showNotification(`加入房间失败，状态码: ${xhr.status}`);
+                        }
+                        // 请求完成，恢复按钮状态
+                        button.disabled = false;
+                    }
+                };
+                xhr.send(JSON.stringify({})); // 在 open 之后调用 send 方法
+            }
         }
+
 
         function reloadRooms() {
 
@@ -306,11 +376,11 @@
             reloadButton.disabled = true;
             // 清空卡片列表
             homeSection.innerHTML = '';
-            xhr.open('POST', 'https://mc.miaaoo.com:10101/test-list', true);
+            xhr.open('POST', 'https://api.miaaoo.com/list', true);
             xhr.setRequestHeader("Content-Type", "application/json");
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
+                    if (xhr.status === 200 || xhr.status === 201) {
                         const data = JSON.parse(xhr.responseText);
                         loadRooms(data);
                     } else {
@@ -351,6 +421,10 @@
             xuid = xuidInput.value; // 这里也同步更新变量
         }
 
+        function jump() {
+            window.location.href = 'https://mc.miaaoo.com';
+        }
+
         // 添加输入监听函数
         let fetchTimeout;
         function handlePlayerNameChange(value) {
@@ -362,14 +436,34 @@
         document.getElementById('playerXUID').addEventListener('input', function(e) {
             xuid = e.target.value;
         });
-        
+
         document.addEventListener('DOMContentLoaded', function() {
+        // 初始化时，设置默认为gouhope
             const savedXuid = localStorage.getItem('savedXuid');
             if (savedXuid) {
                 document.getElementById('playerXUID').value = savedXuid;
                 xuid = savedXuid;
             }
+
+            // 添加这部分代码来根据保存的状态设置按钮的 disabled 属性
+            const savedSource = localStorage.getItem('selectedSource') || 'MultiMC23'; // 如果没有保存的值，则默认为 MultiMC23
+            filterRoomsBySource(savedSource);
+
+            // 添加点击事件监听器以保存用户的选择
+            document.getElementById('MultiMC23Button').addEventListener('click', function() {
+                localStorage.setItem('selectedSource', 'MultiMC23');
+            });
+
+            document.getElementById('gouhopeButton').addEventListener('click', function() {
+                localStorage.setItem('selectedSource', 'gouhope');
+            });
+
+            document.getElementById('HelloMC25Button').addEventListener('click', function() {
+                localStorage.setItem('selectedSource', 'HelloMC25');
+            });
         });
+
+    // 其他函数保持不变
 
         function validateAndUpdateXuid() {
             const xuidInput = document.getElementById('playerXUID');
@@ -387,6 +481,40 @@
             showNotification(value ? 'XUID更新成功' : 'XUID已清空');
         }
         // 初始加载时，设置默认为gouhope
+        const jumpModal = document.getElementById('jumpModal');
+        const spanJump = jumpModal.getElementsByClassName("close")[0];
+        const updateModal = document.getElementById("updateModal")
+        const spanUpdate = jumpModal.getElementsByClassName("close")[0];
+
+        function showUpdateModal() {
+            updateModal.style.display = "block";
+        }
+
+        function hideUpdateModal() {
+            updateModal.style.display = "none";
+        }
+
+        function showJumpModal() {
+            jumpModal.style.display = 'block';
+        }
+
+        function hideJumpModal() {
+            jumpModal.style.display = 'none';
+            setTimeout(() => {
+                showUpdateModal();
+            }, 2000);
+        }
+
+        spanJump.onclick = function() {
+            hideJumpModal();
+        }
+
+        showJumpModal();
+
+
+        
+        // 示例调用
+
         
         let xuid = localStorage.getItem('savedXuid') || '';
         document.getElementById('playerXUID').value = xuid;
@@ -395,7 +523,7 @@
         const homeSection = document.getElementById('home');
         const reloadButton = document.getElementById('reloadButton');
 
-        xhr.open('POST', 'https://mc.miaaoo.com:10101/test-list', true);
+        xhr.open('POST', 'https:/api.miaaoo.com/list', true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
