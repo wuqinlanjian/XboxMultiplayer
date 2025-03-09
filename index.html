@@ -67,15 +67,12 @@
     <div id="updateModal" class="modal">
         <div class="modal-header">
             <span class="close">&times;</span>
-            <p style="text-align: center;font-family: Minecraft; color: white;display: flex;justify-content: center;align-items: center;height: 30%;font-size: 20px;">1.0.1版本更新内容</p>
+            <p style="text-align: center;font-family: Minecraft; color: white;display: flex;justify-content: center;align-items: center;height: 30%;font-size: 20px;">1.0.2版本更新内容</p>
         </div>
         <div class="modal-body" style="text-align: center;">
-            <p style="font-family: Minecraft;color: white">1.使用了新版API，速度更快，稳定性更高。</p>
-            <p style="font-family: Minecraft;color: white">2.修复了打开网页时设置中gouhope与HelloMC25的显示问题。</p>
-            <p style="font-family: Minecraft;color: white">3.优化了页面加载速度。</p>
-            <p style="font-family: Minecraft;color: white">4.修复了部分页面显示问题。</p>
-            <p style="font-family: Minecraft;color: white">5.添加了“前往官方网站！”弹窗</p>
-            <p style="font-family: Minecraft;color: white">6.加入了更新日志</p>
+            <p style="font-family: Minecraft;color: white">1.新增“通过邀请码查找房间”功能。</p>
+            <p style="font-family: Minecraft;color: white">2.优化了房间列表的显示。</p>
+            <p style="font-family: Minecraft;color: white">3.修复了一些已知问题。</p>
         </div>
         <div class="overlay-footer">
             <button class="simple_button" onclick="hideUpdateModal()" style="width:490px; display: flex; justify-content: center;align-items: center;">我已知晓</button>
@@ -96,7 +93,15 @@
     </div>
     <div id="notification"></div>
     <section id="home" class="active">
-
+        <div class="card">
+            <div class="card-header">
+                查找房间
+            </div>
+            <div class="card-body">
+                <input type="text" class="input-box" id="search" placeholder="在此输入邀请码(房间UUID)">
+                <button class="create_button" id="searchButton" onclick="searchAndJoinRoom()">查找</button>
+            </div>
+        </div>
     </section>
     <section id="tutorials">
         <div class="card">
@@ -241,8 +246,18 @@
         }
 
         function loadRooms(data, source = 'all') {
-
             homeSection.innerHTML = ''; // 清空现有内容
+            homeSection.innerHTML = `
+            <div class="card">
+                <div class="card-header">
+                    查找房间
+                </div>
+                <div class="card-body">
+                    <input type="text" class="input-box" id="search" placeholder="在此输入邀请码(房间UUID)">
+                    <button class="create_button" id="searchButton" onclick="searchAndJoinRoom()">查找</button>
+                </div>
+            </div>
+            `
             let joinableRooms = [];
             let unjoinableRooms = [];
             const room = data.results;
@@ -251,31 +266,30 @@
                 worldName = worldName.replace(/§[0-9a-z]/g, "");
 
                 const worldType = roomInfo.customProperties.worldType === "Adventure" ? "冒险" :
-                                    roomInfo.customProperties.worldType === "Survival" ? "生存" :
-                                    roomInfo.customProperties.worldType === "Creative" ? "创造" : "未知";
+                                roomInfo.customProperties.worldType === "Survival" ? "生存" :
+                                roomInfo.customProperties.worldType === "Creative" ? "创造" : "未知";
                 const joinAble = roomInfo.customProperties.BroadcastSetting === 3 ? true : false;
                 const roomFrom = roomInfo.roomfrom;
                 const hostName = roomInfo.customProperties.hostName;
 
                 const card = document.createElement('div');
                 let fromName;
-                if(roomFrom == 2){
-                    fromName = "MultiMC23"
-                }
-                else if(roomFrom == 3){
-                    fromName = "gouhope"
-                }
-                else if(roomFrom == 4){
-                    fromName = "HelloMC25"
-                }
-                else{
-                    fromName = "未知"
+                if (roomFrom == 2) {
+                    fromName = "MultiMC23";
+                } else if (roomFrom == 3) {
+                    fromName = "gouhope";
+                } else if (roomFrom == 4) {
+                    fromName = "HelloMC25";
+                } else {
+                    fromName = "未知";
                 }
 
                 card.className = 'card';
                 card.innerHTML = `
-                    <div class="card-header">${worldName}</div><img src="pf1.png" alt="示例图片" width="25" height="25" >
+                    <div class="card-header">${worldName}</div>
+                    <img src="pf1.png" alt="示例图片" width="25" height="25">
                     <div class="card-body">房间类型: ${worldType}, 房主: ${hostName}, 成员: ${roomInfo.customProperties.MemberCount}/${roomInfo.customProperties.MaxMemberCount}, 创建时间: ${convertTimetime(roomInfo.createTime)}<br>来源: ${fromName}</div>
+                    <button class="create_button" onclick="copyRoomUUID('${roomInfo.id}')">复制邀请码</button>
                 `;
 
                 // 根据房间是否可加入，将其放入不同的数组中
@@ -295,7 +309,6 @@
                     };
                     card.appendChild(joinButton);
                 } else {
-                    // 如果房间不可加入，则创建一个禁用的“加入”按钮
                     const joinButton = document.createElement('button');
                     joinButton.className = 'create_button';
                     joinButton.innerText = '加入';
@@ -313,7 +326,7 @@
             reloadButton.disabled = false;
         }
 
-        function joinRoom(roomId, sessionName, roomFrom, joinAble) {
+        function joinRoom(roomId, sessionName, roomFrom, joinAble, isCode = false) {
             audio2.currentTime = 0;
             audio2.play().catch(error => {
                 console.error('播放音频时出错:', error);
@@ -324,9 +337,11 @@
             }
 
             // 获取点击的按钮元素
-            const button = event.target;
-            // 禁用按钮
-            button.disabled = true;
+            if (isCode == false) {
+                const button = event.target;
+                // 禁用按钮
+                button.disabled = true;
+            }
             if(!xuid || xuid == ""){
                 const xhr = new XMLHttpRequest(); // 创建一个 XMLHttpRequest 对象
                 xhr.open('POST', 
@@ -347,6 +362,7 @@
                 xhr.send(JSON.stringify({})); // 在 open 之后调用 send 方法
             }
             else{
+                showNotification('正在加入房间...');
                 const xhr = new XMLHttpRequest(); // 创建一个 XMLHttpRequest 对象
                 xhr.open('POST', 
                 `https://api.miaaoo.com/join?roomfrom=${roomFrom}&addid=${roomFrom}&roomid=${roomId}&sessionname=${sessionName}&userxuid=${xuid}`, 
@@ -422,6 +438,58 @@
         function jump() {
             window.location.href = 'https://mc.miaaoo.com';
         }
+         
+        function copyRoomUUID(uuid) {
+            navigator.clipboard.writeText(uuid).then(() => {
+                showNotification('邀请码已复制到剪贴板');
+            }, err => {
+                console.error('无法复制邀请码: ', err);
+                showNotification('无法复制邀请码');
+            });
+        }
+
+        function searchAndJoinRoom() {
+            const uuid = document.getElementById('search').value.trim()
+
+            const xhr = new XMLHttpRequest();
+            let findCount = 0;
+            let rrom_f
+            let room_sn
+            xhr.open('POST', 'https://api.miaaoo.com/list', true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        const data = JSON.parse(xhr.responseText); 
+                        const room = data.results
+                        room.forEach((roomInfo, index) => {
+                            const roomFrom = roomInfo.roomfrom;
+                            console.log(roomInfo.id == uuid, ":", roomInfo.id, uuid)
+                            if (roomInfo.id === uuid) {
+                                findCount++;
+                                room_f = roomFrom
+                                room_sn = roomInfo.sessionRef.name
+                            }
+                        })
+                        if (findCount == 0) {
+                            showNotification(`查找失败，未找到对应房间`)
+                        }
+                        else{
+                            showNotification(`查找成功，找到${findCount}个房间`)
+                            setTimeout(() => {
+                                joinRoom(uuid, room_sn, room_f, true, true)
+                            }, 2000)
+
+                        }
+                    } else {
+                        showNotification(`加载失败，状态码: ${xhr.status}`);
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({}));
+        }
+
+
 
         // 添加输入监听函数
         let fetchTimeout;
@@ -509,7 +577,7 @@
 
         showJumpModal();
 
-
+  
         
         // 示例调用
 
